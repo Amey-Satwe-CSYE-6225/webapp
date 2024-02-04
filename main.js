@@ -75,7 +75,7 @@ app.post("/v1/user", async (req, res, next) => {
     return res.status(201).send();
   } catch (e) {
     console.log(e);
-    return res.status(404).send();
+    return res.status(400).send();
   }
 });
 
