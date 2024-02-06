@@ -6,10 +6,11 @@ const port = 3000;
 
 import sequelize from "./models/sequelize.js";
 import User from "./models/userModel.js";
+import { where } from "sequelize";
 
 app.use(express.json());
 
-const saltRounds = 20;
+const saltRounds = 10;
 
 app.use((req, res, next) => {
   console.log("headers MW");
@@ -77,6 +78,42 @@ app.post("/v1/user", async (req, res, next) => {
     console.log(e);
     return res.status(400).send();
   }
+});
+
+app.get("/v1/user/self", async (req, res, next) => {
+  // console.log(atob(req.headers.authorization.split(" ")[1]));
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    // let err = new Error("You are not authenticated!");
+    res.setHeader("WWW-Authenticate", "Basic");
+    res.status(401).send();
+  }
+  const decodedString = atob(authHeader.split(" ")[1]).split(":");
+  const username = decodedString[0];
+  const password = decodedString[1];
+  const currentUser = await User.findOne({
+    where: {
+      username: username,
+    },
+  });
+  if (!currentUser) {
+    res.status(400).send();
+  }
+  const isValidUser = await bcrypt.compare(password, currentUser.password);
+  if (currentUser && isValidUser) {
+    console.log("Password Valid, Let request pass");
+    // console.log(typeof currentUser);
+
+    const responseUser = await User.findOne({
+      where: {
+        username: username,
+      },
+      attributes: { exclude: ["password"] },
+    });
+    res.json(responseUser);
+    res.status(200).send();
+  }
+  res.status(401).send();
 });
 
 sequelize
