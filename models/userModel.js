@@ -1,5 +1,5 @@
-import sequelize from "./sequelize.js";
-import DataTypes from "sequelize";
+const sequelize = require("./sequelize.js");
+const DataTypes = require("sequelize");
 
 const User = sequelize.define(
   "User",
@@ -51,4 +51,4 @@ const User = sequelize.define(
   } //https://stackoverflow.com/questions/39587767/disable-updatedat-update-date-field-in-sequelize-js
 );
 
-export default User;
+module.exports = User;
