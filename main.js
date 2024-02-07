@@ -1,12 +1,11 @@
-import express from "express";
-import bodyParser from "body-parser";
-import bcrypt from "bcrypt";
+const express = require("express");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
 const app = express();
 const port = 3000;
 
-import sequelize from "./models/sequelize.js";
-import User from "./models/userModel.js";
-import { where } from "sequelize";
+const sequelize = require("./models/sequelize.js");
+const User = require("./models/userModel.js");
 
 app.use(express.json());
 
@@ -52,6 +51,18 @@ app.get("/healthz", (req, res, next) => {
     });
 });
 
+const checkDBMiddleWare = async (req, res, next) => {
+  try {
+    await sequelize.authenticate();
+    next();
+  } catch (err) {
+    console.log("Db connection didn't work");
+    return res.status(503).send();
+  }
+};
+
+app.use(checkDBMiddleWare);
+
 app.post("/v1/user", async (req, res, next) => {
   console.log("Posting to user");
   // Create a new user
@@ -71,7 +82,7 @@ app.post("/v1/user", async (req, res, next) => {
       password: hashedPwd,
       username: userName,
     });
-    console.log(`${user.first_name}'s auto-generated ID:, ${user.id}`);
+    // console.log(`${user.first_name}'s auto-generated ID:, ${user.id}`);
 
     return res.status(201).send();
   } catch (e) {
@@ -85,7 +96,6 @@ app.get("/v1/user/self", async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     // let err = new Error("You are not authenticated!");
-    res.setHeader("WWW-Authenticate", "Basic");
     res.status(401).send();
   }
   const decodedString = atob(authHeader.split(" ")[1]).split(":");
@@ -101,9 +111,7 @@ app.get("/v1/user/self", async (req, res, next) => {
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
   if (currentUser && isValidUser) {
-    console.log("Password Valid, Let request pass");
-    // console.log(typeof currentUser);
-
+    //  console.log("Password Valid, Let request pass");
     const responseUser = await User.findOne({
       where: {
         username: username,
@@ -116,6 +124,14 @@ app.get("/v1/user/self", async (req, res, next) => {
   res.status(401).send();
 });
 
+app.put("/v1/user/self", async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    // let err = new Error("You are not authenticated!");
+    res.status(401).send();
+  }
+});
+
 sequelize
   .sync()
   .then(() => {
@@ -125,8 +141,6 @@ sequelize
     console.error("Error syncing database:", error);
   });
 
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+// app.listen(3000, () => console.log(`Listening on port: 3000`));
 
-// export default app;
+module.exports = app;
