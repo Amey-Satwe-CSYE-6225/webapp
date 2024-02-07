@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const app = express();
 const { body, validationResult } = require("express-validator");
@@ -7,11 +6,11 @@ const { body, validationResult } = require("express-validator");
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
 
-const putSchema = [
-  body("username").isEmail(),
-  body("first_name").isString(),
-  body("last_name").isString(),
-  body("password").isAlphanumeric(),
+const schema = [
+  body("username").isEmail().isLength({ min: 1 }),
+  body("first_name").isString().isLength({ min: 1 }),
+  body("last_name").isString().isLength({ min: 1 }),
+  body("password").isAlphanumeric().isLength({ min: 1 }),
 ];
 
 const validateSchema = (req, res, next) => {
@@ -88,7 +87,7 @@ const checkDBMiddleWare = async (req, res, next) => {
 
 app.use(checkDBMiddleWare);
 
-app.post("/v1/user", async (req, res, next) => {
+app.post("/v1/user", schema, validateSchema, async (req, res, next) => {
   console.log("Posting to user");
   // Create a new user
 
@@ -153,7 +152,7 @@ app.get("/v1/user/self", async (req, res, next) => {
   res.status(401).send();
 });
 
-app.put("/v1/user/self", putSchema, validateSchema, async (req, res, next) => {
+app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const decodedString = atob(authHeader.split(" ")[1]).split(":");
   const username = decodedString[0];
@@ -168,13 +167,18 @@ app.put("/v1/user/self", putSchema, validateSchema, async (req, res, next) => {
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
   if (currentUser && !isValidUser) {
-    // password validation has failed
     return res.status(401).send();
   }
   let body = req.body;
   let firstName = body.first_name;
   let lastName = body.last_name;
   let updatedPassword = body.password;
+  let reqUserName = body.username;
+  if (reqUserName !== username) {
+    return res.status(400).json({
+      error: "request username and authentication username does not match",
+    });
+  }
   const hashedPwd = await bcrypt.hash(updatedPassword, 10);
   console.log("here");
   try {
