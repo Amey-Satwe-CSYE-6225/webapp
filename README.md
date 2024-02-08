@@ -4,7 +4,7 @@ CSYE-6225(Network Structures and Cloud Computing) Web app will be worked on here
 # Steps to setup the repo for demo.
 ## scp zip file into digitalocean droplet.
 ``` bash
-scp -i ~/.ssh/id_rsa_digitalOcean.pub ./Amey_Satwe_002244396_02.zip \n USER@SERVER:/home/USER/FILENAME
+scp -i ~/.ssh/id_rsa_digitalOcean.pub ./Amey_Satwe_002244396_02.zip USER@SERVER:/home/USER/FILENAME
 ```
 
 ## SSH into VM to start the demo
@@ -14,7 +14,7 @@ ssh -i ~/.ssh/id_rsa_digitalOcean.pub root@IP
 
 
 ## Create a user for demo purposes.
-As we login as root. We can execute  the following command to create a new user.
+As we login as root. We can execute  the following commands to create a new user.
 ```bash
 useradd -m -d /home/demo -s /bin/bash demo
 ```
@@ -26,6 +26,11 @@ Add the demo user to the sudo group.
 wheel is the sudoer's group for Centos
 ```bash
 usermod -G wheel -a demo
+```
+
+Switch user to demo user for the demo using the following commands
+```bash
+su - demo
 ```
 
 

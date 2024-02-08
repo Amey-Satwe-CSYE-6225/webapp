@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/healthz", (req, res, next) => {
+app.use((req, res, next) => {
   console.log("Params MW");
   if (
     req.get("Content-type") ||
@@ -106,6 +106,13 @@ app.post("/v1/user", schema, validateSchema, async (req, res, next) => {
       password: hashedPwd,
       username: userName,
     });
+    const responseUser = await User.findOne({
+      where: {
+        username: userName,
+      },
+      attributes: { exclude: ["password"] },
+    });
+    res.json(responseUser);
     return res.status(201).send();
   } catch (e) {
     console.log(e);
@@ -126,6 +133,11 @@ app.use("/v1/user/self", authMiddleWare);
 
 app.get("/v1/user/self", async (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log(req.body);
+  if (Object.keys(req.body).length > 0) {
+    console.log("bad req for body");
+    return res.status(400).send();
+  }
   const decodedString = atob(authHeader.split(" ")[1]).split(":");
   const username = decodedString[0];
   const password = decodedString[1];
@@ -188,7 +200,6 @@ app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
       password: hashedPwd,
     });
     console.log("After set");
-
     await currentUser.save();
     return res.status(204).send();
   } catch (err) {

@@ -44,7 +44,7 @@ const User = sequelize.define(
     timestamps: true,
     createdAt: "account_created",
     updatedAt: "account_updated",
-  } //https://stackoverflow.com/questions/39587767/disable-updatedat-update-date-field-in-sequelize-js
+  }
 );
 
 module.exports = User;
