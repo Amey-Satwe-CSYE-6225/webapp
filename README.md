@@ -1,5 +1,4 @@
 # webapp
-CSYE-6225(Network Structures and Cloud Computing) Web app will be worked on here
 
 # Steps to setup the repo for demo.
 ## scp zip file into digitalocean droplet.
@@ -40,7 +39,7 @@ su - demo
 ## For Node
 The following command will be used to install Node on the CentOS vm. It also installs npm for us.
 ```bash
-sudo dnf module install nodejs:18/common
+sudo dnf module install nodejs:18
 ```
 To check if everything is installed correctly.
 Run the following.
@@ -64,8 +63,9 @@ sudo mysql_secure_installation
 
 # Drop into mysql console as root.
 mysql -u root -p
-
-# Create a database using the following command.
+```
+```sql
+## Create a database using the following command.
 CREATE DATABASE Assignment_1
 
 # Create a new user for the demo.
@@ -82,8 +82,16 @@ FLUSH PRIVILEGES;
 
 # Now for the code part.
 ## Unzip the zip we copied using scp to the server.
-## cd into the zip
 
+```bash
+unzip Amey_Satwe_002244396.zip .
+```
+
+## change directory into zip
+
+```bash
+cd Amey_Satwe_002244396 ##into the zip
+```
 ## run the following to install dependencies.
 ```bash
 npm i
