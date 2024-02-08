@@ -48,7 +48,7 @@ app.use("/healthz", (req, res, next) => {
     Object.keys(req.body).length > 0 ||
     Object.keys(req.query).length > 0
   ) {
-    res.status(400).send();
+    return res.status(400).send();
   } else {
     next();
   }
@@ -57,7 +57,7 @@ app.use("/healthz", (req, res, next) => {
 app.use("/healthz", (req, res, next) => {
   console.log("method MW");
   if (req.method != "GET") {
-    res.status(405).send();
+    return res.status(405).send();
   } else {
     next();
   }
@@ -135,7 +135,7 @@ app.get("/v1/user/self", async (req, res, next) => {
     },
   });
   if (!currentUser) {
-    res.status(400).send();
+    return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
   if (currentUser && isValidUser) {
@@ -147,9 +147,9 @@ app.get("/v1/user/self", async (req, res, next) => {
       attributes: { exclude: ["password"] },
     });
     res.json(responseUser);
-    res.status(200).send();
+    return res.status(200).send();
   }
-  res.status(401).send();
+  return res.status(401).send();
 });
 
 app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
@@ -193,7 +193,7 @@ app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
     return res.status(204).send();
   } catch (err) {
     console.log(err);
-    res.status(400).send();
+    return res.status(400).send();
   }
 });
 
