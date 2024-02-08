@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
+app.use("/healthz", (req, res, next) => {
   console.log("Params MW");
   if (
     req.get("Content-type") ||
@@ -87,6 +87,14 @@ const checkDBMiddleWare = async (req, res, next) => {
 
 app.use(checkDBMiddleWare);
 
+app.use((req, res, next) => {
+  if (Object.keys(req.query).length > 0) {
+    return res.status(400).send();
+  } else {
+    next();
+  }
+});
+
 app.post("/v1/user", schema, validateSchema, async (req, res, next) => {
   console.log("Posting to user");
   // Create a new user
@@ -97,7 +105,7 @@ app.post("/v1/user", schema, validateSchema, async (req, res, next) => {
   let password = body.password;
   let userName = body.username;
 
-  const hashedPwd = await bcrypt.hash(password, 10);
+  const hashedPwd = await bcrypt.hash(password, saltRounds);
   console.log(`Hashed password is ${hashedPwd}`);
   try {
     const user = await User.create({
@@ -133,7 +141,7 @@ app.use("/v1/user/self", authMiddleWare);
 
 app.get("/v1/user/self", async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log(req.body);
+
   if (Object.keys(req.body).length > 0) {
     console.log("bad req for body");
     return res.status(400).send();
@@ -191,7 +199,7 @@ app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
       error: "request username and authentication username does not match",
     });
   }
-  const hashedPwd = await bcrypt.hash(updatedPassword, 10);
+  const hashedPwd = await bcrypt.hash(updatedPassword, saltRounds);
   console.log("here");
   try {
     currentUser.set({
