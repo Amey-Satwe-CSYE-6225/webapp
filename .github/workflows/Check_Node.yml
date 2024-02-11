@@ -20,8 +20,8 @@ jobs:
           mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS Assignment_1;SHOW DATABASES;'
       - name: run node tests
         env:
-          DATABASE: "Assignment_1"
-          UNAME: "root"
-          PASSWORD: "root"
-          HOST: "127.0.0.1"
+          DATABASE: ${{secrets.DATABASE}}
+          UNAME: ${{secrets.UNAME}}
+          PASSWORD: ${{secrets.PASSWORD}}
+          HOST: ${{secrets.HOST}}
         run: npm test
