@@ -14,5 +14,12 @@ jobs:
           node-version: 18
       - name: Do install of dependencies
         run: npm i
+      - name: Create database and start mysql.
+        run: |
+          sudo systemctl start mysql.service
+          mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS ASSIGNMENT_1;'
+      - name: "Create env file"
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
       - name: run node tests
         run: npm test
