@@ -21,9 +21,7 @@ describe("POST /healthz", () => {
     const postResponse = await request(app)
       .post("/v1/user")
       .send(payload)
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json");
-    expect(postResponse.status).toBe(200);
+      .expect(201);
     const responseBody = postResponse.body;
     const stringToEncode = payload.username + ":" + payload.password;
     const getResponse = await request(app)
