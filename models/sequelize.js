@@ -2,10 +2,10 @@ const Sequelize = require("sequelize");
 require("dotenv").config();
 
 const sequelize = new Sequelize({
-  database: process.env.DATABASE,
-  username: process.env.UNAME,
-  password: process.env.PASSWORD,
-  host: process.env.HOST,
+  database: "Assignment_1",
+  username: "root",
+  password: "root",
+  host: "127.0.0.1",
   dialect: "mysql",
 });
 
