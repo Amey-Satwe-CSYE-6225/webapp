@@ -120,8 +120,9 @@ app.post("/v1/user", schema, validateSchema, async (req, res, next) => {
       },
       attributes: { exclude: ["password"] },
     });
-    res.json(responseUser);
-    return res.status(201).send();
+    // console.log("helloooooo");
+    return res.status(201).json(responseUser);
+    // return res.status(204).send();
   } catch (e) {
     console.log(e);
     return res.status(400).send();
