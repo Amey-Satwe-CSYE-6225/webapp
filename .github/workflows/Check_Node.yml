@@ -21,7 +21,9 @@ jobs:
 
       - name: "Create env file"
         run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
+          touch .env
+          echo ${{ secrets.ENV_FILE }} > .env
+          ls -ltr
           cat .env
       - name: run node tests
         run: npm test
