@@ -17,7 +17,7 @@ jobs:
       - name: Create database and start mysql.
         run: |
           sudo systemctl start mysql.service
-          mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS ASSIGNMENT_1;SHOW DATABASES;'
+          mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS Assignment_1;SHOW DATABASES;'
 
       - name: "Create env file"
         run: |
