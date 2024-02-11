@@ -18,13 +18,10 @@ jobs:
         run: |
           sudo systemctl start mysql.service
           mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS Assignment_1;SHOW DATABASES;'
-      - name: "Create env file"
-        env:
-          ENV: ${{secrets.ENV_FILE}}
-        run: |
-          touch .env
-          echo "$ENV" > .env
-          ls -latr
-          cat .env
       - name: run node tests
+        env:
+          DATABASE: "Assignment_1"
+          UNAME: "root"
+          PASSWORD: "root"
+          HOST: "127.0.0.1"
         run: npm test
