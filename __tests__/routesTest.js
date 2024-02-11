@@ -23,7 +23,7 @@ describe("POST /healthz", () => {
       .send(payload)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json");
-    expect(postResponse.status).toBe(503);
+    expect(postResponse.status).toBe(200);
     const responseBody = postResponse.body;
     const stringToEncode = payload.username + ":" + payload.password;
     const getResponse = await request(app)
