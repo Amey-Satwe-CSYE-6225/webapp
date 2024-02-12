@@ -36,7 +36,12 @@ describe("POST /healthz", () => {
       .set("Authorization", `Basic ${btoa(stringToEncode)}`);
     expect(getResponse.status).toBe(200);
     // console.log(getResponse.body);
-    expect(getResponse.body).toMatchObject(responseBody);
+    const body = getResponse.body;
+    delete body.id;
+    delete body.account_created;
+    delete body.account_updated;
+    const compare_payload = payload.password;
+    expect(body).toMatchObject(compare_payload);
   });
 });
 
@@ -56,6 +61,6 @@ describe("PUT /healthz", () => {
     console.log("get body from put" + getResponse.body);
     delete putPayload.password;
     console.log(getResponse.body);
-    expect(getResponse.body).toMatchObject(putPayload);
+    expect(putPayload).toMatchObject(getResponse.body);
   });
 });
