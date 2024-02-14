@@ -47,7 +47,7 @@ describe("POST /healthz", () => {
     delete body.account_created;
     delete body.account_updated;
     const compare_payload = payload.password;
-    expect(body).toMatchObject(comparisonAfterPost);
+    expect(body).toStrictEqual(comparisonAfterPost);
   });
 });
 
@@ -67,6 +67,9 @@ describe("PUT /healthz", () => {
     console.log("get body from put" + getResponse.body);
     delete putPayload.password;
     console.log(getResponse.body);
-    expect(getResponse.body).toMatchObject(putPayload);
+    delete getResponse.body.account_created;
+    delete getResponse.body.account_updated;
+    delete getResponse.body.id;
+    expect(getResponse.body).toStrictEqual(putPayload);
   });
 });
