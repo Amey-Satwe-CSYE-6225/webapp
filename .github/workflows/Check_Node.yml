@@ -17,7 +17,7 @@ jobs:
       - name: Create database and start mysql.
         run: |
           sudo systemctl start mysql.service
-          mysql -uroot -h127.0.0.1 -proot -e 'CREATE DATABASE IF NOT EXISTS Assignment_1;SHOW DATABASES;'
+          mysql -u${{secrets.UNAME}} -h127.0.0.1 -p${{secrets.PASSWORD}} -e 'CREATE DATABASE IF NOT EXISTS Assignment_1;SHOW DATABASES;'
       - name: run node tests
         env:
           DATABASE: ${{secrets.DATABASE}}
