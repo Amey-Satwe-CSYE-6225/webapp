@@ -9,6 +9,12 @@ const payload = {
   username: "amey.satwe@test.com",
 };
 
+const comparisonAfterPost = {
+  first_name: "amey",
+  last_name: "satwe",
+  username: "amey.satwe@test.com",
+};
+
 const putPayload = {
   first_name: "AmeyAfterPut",
   last_name: "satwe",
@@ -41,7 +47,7 @@ describe("POST /healthz", () => {
     delete body.account_created;
     delete body.account_updated;
     const compare_payload = payload.password;
-    expect(body).toMatchObject(compare_payload);
+    expect(body).toMatchObject(comparisonAfterPost);
   });
 });
 
@@ -61,6 +67,6 @@ describe("PUT /healthz", () => {
     console.log("get body from put" + getResponse.body);
     delete putPayload.password;
     console.log(getResponse.body);
-    expect(putPayload).toMatchObject(getResponse.body);
+    expect(getResponse.body).toMatchObject(putPayload);
   });
 });
