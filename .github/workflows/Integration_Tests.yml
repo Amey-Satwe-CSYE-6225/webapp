@@ -5,7 +5,7 @@ on:
     branches:
       - main
 jobs:
-  Checkout_And_Install_Deps_For_Node:
+  Integration_Test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
