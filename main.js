@@ -221,6 +221,15 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
   }
 });
 
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Database synced successfully");
+  })
+  .catch((error) => {
+    console.error("Error syncing database:", error);
+  });
+
 app.use("/", (req, res, next) => {
   return res.status(404).send();
 });
