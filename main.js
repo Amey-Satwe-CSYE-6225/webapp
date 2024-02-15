@@ -6,8 +6,14 @@ const { body, validationResult } = require("express-validator");
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
 
-const schema = [
+const postschema = [
   body("username").isEmail().isLength({ min: 1 }),
+  body("first_name").isString().isLength({ min: 1 }),
+  body("last_name").isString().isLength({ min: 1 }),
+  body("password").isAlphanumeric().isLength({ min: 1 }),
+];
+
+const putschema = [
   body("first_name").isString().isLength({ min: 1 }),
   body("last_name").isString().isLength({ min: 1 }),
   body("password").isAlphanumeric().isLength({ min: 1 }),
@@ -15,7 +21,11 @@ const schema = [
 
 const validateSchema = (req, res, next) => {
   const errors = validationResult(req);
-  const allowedFields = ["username", "first_name", "last_name", "password"];
+  const allowedFields =
+    req.method === "POST"
+      ? ["username", "first_name", "last_name", "password"]
+      : ["first_name", "last_name", "password"];
+  console.log(allowedFields);
   const requestFields = Object.keys(req.body);
   const extraFields = requestFields.filter(
     (field) => !allowedFields.includes(field)
@@ -95,7 +105,7 @@ app.use((req, res, next) => {
   }
 });
 
-app.post("/v1/user", schema, validateSchema, async (req, res, next) => {
+app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
   console.log("Posting to user");
   // Create a new user
 
@@ -173,7 +183,7 @@ app.get("/v1/user/self", async (req, res, next) => {
   return res.status(401).send();
 });
 
-app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
+app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const decodedString = atob(authHeader.split(" ")[1]).split(":");
   const username = decodedString[0];
@@ -194,12 +204,6 @@ app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
   let firstName = body.first_name;
   let lastName = body.last_name;
   let updatedPassword = body.password;
-  let reqUserName = body.username;
-  if (reqUserName !== username) {
-    return res.status(400).json({
-      error: "request username and authentication username does not match",
-    });
-  }
   const hashedPwd = await bcrypt.hash(updatedPassword, saltRounds);
   console.log("here");
   try {
@@ -216,15 +220,6 @@ app.put("/v1/user/self", schema, validateSchema, async (req, res, next) => {
     return res.status(400).send();
   }
 });
-
-sequelize
-  .sync()
-  .then(() => {
-    console.log("Database synced successfully");
-  })
-  .catch((error) => {
-    console.error("Error syncing database:", error);
-  });
 
 app.use("/", (req, res, next) => {
   return res.status(404).send();

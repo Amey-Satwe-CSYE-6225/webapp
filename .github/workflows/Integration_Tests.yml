@@ -1,0 +1,27 @@
+name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  Checkout_And_Install_Deps_For_Node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Do install of dependencies
+        run: npm i
+      - name: Create database and start mysql.
+        run: |
+          sudo systemctl start mysql.service
+          mysql -u${{secrets.UNAME}} -h127.0.0.1 -p${{secrets.PASSWORD}} -e 'CREATE DATABASE IF NOT EXISTS Assignment_1;SHOW DATABASES;'
+      - name: run node tests
+        env:
+          DATABASE: ${{secrets.DATABASE}}
+          UNAME: ${{secrets.UNAME}}
+          PASSWORD: ${{secrets.PASSWORD}}
+          HOST: ${{secrets.HOST}}
+        run: npm test
