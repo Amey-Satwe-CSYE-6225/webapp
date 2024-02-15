@@ -24,4 +24,4 @@ jobs:
           UNAME: ${{secrets.UNAME}}
           PASSWORD: ${{secrets.PASSWORD}}
           HOST: ${{secrets.HOST}}
-        run: npm test
+        run: npm run IntegrationTest
