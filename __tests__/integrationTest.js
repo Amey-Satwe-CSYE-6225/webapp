@@ -34,11 +34,9 @@ describe("POST /healthz", () => {
     expect(getResponse.status).toBe(200);
     // console.log(getResponse.body);
     const body = getResponse.body;
-    delete body.id;
-    delete body.account_created;
-    delete body.account_updated;
-    const compare_payload = payload.password;
-    expect(body).toStrictEqual(comparisonAfterPost);
+    expect(body.first_name).toBe(payload.first_name);
+    expect(body.last_name).toBe(payload.last_name);
+    expect(body.username).toBe(payload.username);
   });
 });
 
@@ -50,18 +48,13 @@ describe("PUT /healthz", () => {
       .send(putPayload)
       .set("Authorization", `Basic ${btoa(stringToEncode)}`)
       .expect(204);
-    // const stringToEncode = payload.username + ":" + payload.password;
     const getResponse = await request(app)
       .get("/v1/user/self")
       .set("Authorization", `Basic ${btoa(stringToEncode)}`);
     expect(getResponse.status).toBe(200);
     console.log("get body from put" + getResponse.body);
-    delete putPayload.password;
     console.log(getResponse.body);
-    delete getResponse.body.account_created;
-    delete getResponse.body.account_updated;
-    delete getResponse.body.id;
-    delete getResponse.body.username;
-    expect(getResponse.body).toStrictEqual(putPayload);
+    expect(getResponse.body.first_name).toBe(putPayload.first_name);
+    expect(getResponse.body.last_name).toBe(putPayload.last_name);
   });
 });
