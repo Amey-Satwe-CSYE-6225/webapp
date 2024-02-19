@@ -1,0 +1,12 @@
+[Unit]
+Description=js server for CSYE-6225
+After=network.target
+
+[Service]
+Type=simple
+User=csye6225
+ExecStart=/usr/bin/node /opt/webapp/server.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
