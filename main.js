@@ -179,7 +179,7 @@ app.get("/v1/user/self", async (req, res, next) => {
       },
       attributes: { exclude: ["password"] },
     });
-    res.json(responseUser);
+    res.json(responseUser["first_name"]);
     return res.status(200).send();
   }
   return res.status(401).send();
