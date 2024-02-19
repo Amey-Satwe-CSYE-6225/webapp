@@ -6,6 +6,8 @@ const { body, validationResult } = require("express-validator");
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
 
+// Comment for test
+
 const postschema = [
   body("username").isEmail().isLength({ min: 1 }),
   body("first_name").isString().isLength({ min: 1 }),
