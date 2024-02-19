@@ -7,7 +7,6 @@ sudo useradd -m -s /usr/sbin/nologin -g csye6225 csye6225
 sudo cp /tmp/webapp.zip /opt/
 cd /opt/
 
-sudo yum makecache
 sudo yum install unzip -y
 sudo unzip webapp.zip -d /opt/webapp/
 ls -ltr 
@@ -25,4 +24,4 @@ sudo dnf module install nodejs:18/common -y
 
 node -v
 
-npm i
+sudo npm i
