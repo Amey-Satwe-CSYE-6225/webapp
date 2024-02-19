@@ -47,7 +47,8 @@ jobs:
 
       - name: Run `packer validate`
         id: validate
-        run: "packer validate ./image.pkr.hcl"
+        run: "packer validate ."
+
       - name: Create image in gcp
         id: image_create
         run: packer build .
