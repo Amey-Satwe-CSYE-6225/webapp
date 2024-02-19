@@ -15,7 +15,7 @@ variable "source_image_family" {
 
 variable "ssh_username" {
   description = "SSH username for connecting to the custom image"
-  default     = "packer"
+  default     = "csye-6225"
 }
 
 variable "disk_type" {
