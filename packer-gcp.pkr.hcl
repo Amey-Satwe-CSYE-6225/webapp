@@ -1,21 +1,21 @@
 variable "project_id" {
   description = "Google Cloud project ID"
-  default = "csye-6225-dev-414723"
+  default     = "csye-6225-dev-414723"
 }
 
 variable "zone" {
   description = "Default zone for the custom image"
-  default = "us-east1-b"
+  default     = "us-east1-b"
 }
 
 variable "source_image_family" {
   description = "Source image family for the custom image"
-  default = "centos-stream-8"
+  default     = "centos-stream-8"
 }
 
 variable "ssh_username" {
   description = "SSH username for connecting to the custom image"
-  default = "packer"
+  default     = "packer"
 }
 
 variable "disk_type" {
