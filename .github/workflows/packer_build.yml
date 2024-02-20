@@ -8,6 +8,8 @@ env:
   PRODUCT_VERSION: "latest"
 
 jobs:
+  call-workflow-2-in-local-repo:
+    uses: ./.github/workflows/Integration_Tests.yml
   packer:
     runs-on: ubuntu-latest
     name: Run Packer
