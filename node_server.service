@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=csye6225
+WorkingDirectory=/opt/webapp/ 
 ExecStart=/usr/bin/node /opt/webapp/server.js
 Restart=on-failure
 
