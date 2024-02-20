@@ -25,6 +25,11 @@ jobs:
           cat << EOF > ./image.auto.pkrvars.hcl
           ${{ secrets.PKRVARS }}
           EOF
+      - name: Build artifacts
+        id: build
+        run: |
+          rm -rf webapp.zip
+          zip -r webapp.zip . -x ".git/*" ".github/*" "node_modules/*"
 
       - name: Run `packer init`
         id: init
