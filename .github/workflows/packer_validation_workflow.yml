@@ -20,6 +20,11 @@ jobs:
         id: setup
         with:
           version: ${{ env.PRODUCT_VERSION }}
+      - name: Write secret to file
+        run: |
+          cat << EOF > ./image.auto.pkrvars.hcl
+          ${{ secrets.PKRVARS }}
+          EOF
 
       - name: Run `packer init`
         id: init
