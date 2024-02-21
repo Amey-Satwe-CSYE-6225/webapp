@@ -10,6 +10,12 @@ env:
 jobs:
   call-workflow-2-in-local-repo:
     uses: ./.github/workflows/Integration_Tests.yml
+    secrets:
+      DATABASE: ${{secrets.DATABASE}}
+      UNAME: ${{secrets.UNAME}}
+      PASSWORD: ${{secrets.PASSWORD}}
+      HOST: ${{secrets.HOST}}
+
   packer:
     runs-on: ubuntu-latest
     name: Run Packer
@@ -37,6 +43,12 @@ jobs:
         run: |
           cat << EOF > ./image.auto.pkrvars.hcl
           ${{ secrets.PKRVARS }}
+          EOF
+
+      - name: Write secret to file
+        run: |
+          cat << EOF > ./.env
+          ${{ secrets.ENV_FILE }}
           EOF
 
       - name: Run `packer init`
