@@ -5,6 +5,15 @@ on:
     branches:
       - main
   workflow_call:
+    secrets:
+      UNAME:
+        required: true
+      PASSWORD:
+        required: true
+      DATABASE:
+        required: true
+      HOST:
+        required: true
 jobs:
   Integration_Test:
     runs-on: ubuntu-latest
