@@ -4,16 +4,9 @@ on:
   pull_request:
     branches:
       - main
-  workflow_call:
-    secrets:
-      UNAME:
-        required: true
-      PASSWORD:
-        required: true
-      DATABASE:
-        required: true
-      HOST:
-        required: true
+  push:
+    branches:
+      - main
 jobs:
   Integration_Test:
     runs-on: ubuntu-latest

@@ -8,14 +8,6 @@ env:
   PRODUCT_VERSION: "latest"
 
 jobs:
-  call-workflow-2-in-local-repo:
-    uses: ./.github/workflows/Integration_Tests.yml
-    secrets:
-      DATABASE: ${{secrets.DATABASE}}
-      UNAME: ${{secrets.UNAME}}
-      PASSWORD: ${{secrets.PASSWORD}}
-      HOST: ${{secrets.HOST}}
-
   packer:
     runs-on: ubuntu-latest
     name: Run Packer
