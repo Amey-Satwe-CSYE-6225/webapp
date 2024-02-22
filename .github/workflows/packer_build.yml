@@ -45,7 +45,7 @@ jobs:
 
       - name: Write secret to file
         run: |
-          cat << EOF > ./.create_db.sql
+          cat << EOF > ./create_db.sql
           ${{ secrets.SQL_SCRIPT }}
           EOF
 
