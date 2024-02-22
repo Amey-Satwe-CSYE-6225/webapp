@@ -22,6 +22,12 @@ variable "disk_size" {
   type    = number
   default = 20
 }
+variable "image_name" {
+  type = string
+}
+variable "image_family" {
+  type = string
+}
 
 packer {
   required_plugins {
@@ -38,9 +44,9 @@ source "googlecompute" "webapp-csye-custom-image" {
   zone                    = var.zone
   disk_size               = var.disk_size
   disk_type               = var.disk_type
-  image_name              = "webapp-{{timestamp}}"
+  image_name              = "${var.image_name}-{{timestamp}}"
   image_description       = "webapp custom image for CSYE 6225"
-  image_family            = "webapp-image"
+  image_family            = var.image_family
   image_project_id        = var.project_id
   image_storage_locations = ["us"]
   ssh_username            = var.ssh_username
