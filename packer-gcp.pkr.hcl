@@ -39,7 +39,7 @@ packer {
 }
 
 source "googlecompute" "webapp-csye-custom-image" {
-  project_id              = var.project_id
+  project_id              = var.
   source_image_family     = var.source_image_family
   zone                    = var.zone
   disk_size               = var.disk_size
