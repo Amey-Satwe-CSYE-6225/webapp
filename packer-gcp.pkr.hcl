@@ -57,7 +57,7 @@ build {
     "sources.googlecompute.webapp-csye-custom-image"
   ]
   provisioner "file" {
-    source      = "webapp.zip"
+    source      =     "webapp.zip"
     destination = "/tmp/"
   }
   provisioner "shell" {
