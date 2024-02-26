@@ -39,7 +39,7 @@ packer {
 }
 
 source "googlecompute" "webapp-csye-custom-image" {
-  project_id              = var.
+  project_id              = var.project_id
   source_image_family     = var.source_image_family
   zone                    = var.zone
   disk_size               = var.disk_size
@@ -57,7 +57,7 @@ build {
     "sources.googlecompute.webapp-csye-custom-image"
   ]
   provisioner "file" {
-    source      =     "webapp.zip"
+    source      = "webapp.zip"
     destination = "/tmp/"
   }
   provisioner "shell" {
