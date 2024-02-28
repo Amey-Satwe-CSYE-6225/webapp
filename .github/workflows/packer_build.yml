@@ -37,18 +37,6 @@ jobs:
           ${{ secrets.PKRVARS }}
           EOF
 
-      - name: Write secret to file
-        run: |
-          cat << EOF > ./.env
-          ${{ secrets.ENV_FILE }}
-          EOF
-
-      - name: Write secret to file
-        run: |
-          cat << EOF > ./create_db.sql
-          ${{ secrets.SQL_SCRIPT }}
-          EOF
-
       - name: Run `packer init`
         id: init
         run: "packer init ."
