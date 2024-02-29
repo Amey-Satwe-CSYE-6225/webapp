@@ -228,6 +228,7 @@ sequelize
   })
   .catch((error) => {
     console.error("Error syncing database:", error);
+    process.exit(1);
   });
 
 app.use("/", (req, res, next) => {
