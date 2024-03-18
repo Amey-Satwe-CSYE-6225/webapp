@@ -11,8 +11,9 @@ const logger = winston.createLogger({
   level: "info", // You can set the desired logging level
   format: format.combine(format.timestamp(), format.json()),
   transports: [
-    new winston.transports.Console(), // Log to console
-    new winston.transports.File({ filename: `/var/log/webapp/app.log` }), // Log to a file
+    process.env.ENVIRONMENT === "PRODUCTION"
+      ? new winston.transports.File({ filename: `/var/log/webapp/app.log` })
+      : new winston.transports.Console(),
   ],
 });
 
