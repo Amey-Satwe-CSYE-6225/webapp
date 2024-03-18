@@ -5,6 +5,16 @@ const { body, validationResult } = require("express-validator");
 
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
+const winston = require("winston");
+const format = winston.format;
+const logger = winston.createLogger({
+  level: "info", // You can set the desired logging level
+  format: format.combine(format.timestamp(), format.json()),
+  transports: [
+    new winston.transports.Console(), // Log to console
+    new winston.transports.File({ filename: `/var/log/webapp/app.log` }), // Log to a file
+  ],
+});
 
 const postschema = [
   body("username").isEmail().isLength({ min: 1 }),
@@ -32,11 +42,15 @@ const validateSchema = (req, res, next) => {
   );
 
   if (extraFields.length > 0) {
+    logger.error("Invalid fields in put request");
     return res.status(400).json({ errors: "Invalid fields in put request" });
   }
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: "Please check fields" });
+    logger.error("Please check fields for validation errors");
+    return res
+      .status(400)
+      .json({ errors: "Please check fields for validation errors" });
   }
   next();
 };
@@ -46,18 +60,20 @@ app.use(express.json());
 const saltRounds = 10;
 
 app.use((req, res, next) => {
-  console.log("headers MW");
+  // console.log("headers MW");
+  logger.info("Parsing headers");
   res.set("cache-control", "no-cache,no-store,must-revalidate");
   next();
 });
 
 app.use("/healthz", (req, res, next) => {
-  console.log("Params MW");
+  logger.info("parsing for query params and body");
   if (
     req.get("Content-type") ||
     Object.keys(req.body).length > 0 ||
     Object.keys(req.query).length > 0
   ) {
+    logger.error("Check request with docs");
     return res.status(400).send();
   } else {
     next();
@@ -65,8 +81,10 @@ app.use("/healthz", (req, res, next) => {
 });
 
 app.use("/healthz", (req, res, next) => {
-  console.log("method MW");
+  // console.log("method MW");
+  logger.info("methods MW");
   if (req.method != "GET") {
+    logger.error("Wrong method used on /healthz");
     return res.status(405).send();
   } else {
     next();
@@ -74,13 +92,15 @@ app.use("/healthz", (req, res, next) => {
 });
 
 app.get("/healthz", (req, res, next) => {
-  console.log("Here");
+  // console.log("Here");
   sequelize
     .authenticate()
     .then(() => {
+      logger.info("DB connected and no errors");
       return res.status(200).send();
     })
     .catch((error) => {
+      logger.error(`DB not connected with the following error:${error}`);
       return res.status(503).send();
     });
 });
@@ -88,9 +108,11 @@ app.get("/healthz", (req, res, next) => {
 const checkDBMiddleWare = async (req, res, next) => {
   try {
     await sequelize.authenticate();
+    logger.info("DB connected and no errors");
     next();
   } catch (err) {
-    console.log("Db connection didn't work");
+    // console.log("Db connection didn't work");
+    logger.error(`DB not connected with the following error:${err}`);
     return res.status(503).send();
   }
 };
@@ -99,6 +121,7 @@ app.use(checkDBMiddleWare);
 
 app.use((req, res, next) => {
   if (Object.keys(req.query).length > 0) {
+    logger.error(`Query params used in request. Please change request URL`);
     return res.status(400).send();
   } else {
     next();
@@ -106,9 +129,9 @@ app.use((req, res, next) => {
 });
 
 app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
-  console.log("Posting to user");
+  // console.log("Posting to user");
   // Create a new user
-
+  logger.info("Creating new user on POST");
   let body = req.body;
   let firstName = body.first_name;
   let lastName = body.last_name;
@@ -116,7 +139,7 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
   let userName = body.username;
 
   const hashedPwd = await bcrypt.hash(password, saltRounds);
-  console.log(`Hashed password is ${hashedPwd}`);
+  // console.log(`Hashed password is ${hashedPwd}`);
   try {
     const user = await User.create({
       first_name: firstName,
@@ -131,10 +154,12 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
       attributes: { exclude: ["password"] },
     });
     // console.log("helloooooo");
+    logger.info("User created successfully");
     return res.status(201).json(responseUser);
     // return res.status(204).send();
   } catch (e) {
-    console.log(e);
+    // console.log(e);
+    logger.error(`User creation errored with the following error:${e}`);
     return res.status(400).send();
   }
 });
@@ -142,6 +167,7 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
 const authMiddleWare = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
+    logger.error("Authorization failed. Please check credentials");
     return res.status(401).send();
   } else {
     return next();
@@ -154,7 +180,7 @@ app.get("/v1/user/self", async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (Object.keys(req.body).length > 0) {
-    console.log("bad req for body");
+    logger.error("bad req for body");
     return res.status(400).send();
   }
   const decodedString = atob(authHeader.split(" ")[1]).split(":");
@@ -166,6 +192,7 @@ app.get("/v1/user/self", async (req, res, next) => {
     },
   });
   if (!currentUser) {
+    logger.error("User not found");
     return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
@@ -177,9 +204,12 @@ app.get("/v1/user/self", async (req, res, next) => {
       },
       attributes: { exclude: ["password"] },
     });
-    res.json(responseUser);
-    return res.status(200).send();
+    logger.info("Found user");
+    res.json(responseUser).status(200).send();
+
+    // return res.status(200).send();
   }
+  logger.error("Unauthorized call to GET");
   return res.status(401).send();
 });
 
@@ -194,10 +224,12 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
     },
   });
   if (!currentUser) {
+    logger.error("User not found");
     return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
   if (currentUser && !isValidUser) {
+    logger.error("User authorization failed");
     return res.status(401).send();
   }
   let body = req.body;
@@ -205,18 +237,20 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
   let lastName = body.last_name;
   let updatedPassword = body.password;
   const hashedPwd = await bcrypt.hash(updatedPassword, saltRounds);
-  console.log("here");
+  // console.log("here");
   try {
     currentUser.set({
       first_name: firstName,
       last_name: lastName,
       password: hashedPwd,
     });
-    console.log("After set");
+    // console.log("After set");
+    logger.info("User updated");
     await currentUser.save();
     return res.status(204).send();
   } catch (err) {
-    console.log(err);
+    // console.log(err);
+    logger.error(`User update failed with the error:${err}`);
     return res.status(400).send();
   }
 });
@@ -224,10 +258,11 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
 sequelize
   .sync()
   .then(() => {
-    console.log("Database synced successfully");
+    logger.info("Database synced successfully");
+    // console.log("Database synced successfully");
   })
   .catch((error) => {
-    console.error("Error syncing database:", error);
+    logger.error(`Error syncing database:${error}`);
   });
 
 app.use("/", (req, res, next) => {
