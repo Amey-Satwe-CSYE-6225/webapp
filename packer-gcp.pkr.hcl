@@ -60,11 +60,11 @@ build {
     source      = "webapp.zip"
     destination = "/tmp/"
   }
-  provisioner "file"{
-    source = "config.yaml"
+  provisioner "file" {
+    source      = "config.yaml"
     destination = "/tmp/"
   }
   provisioner "shell" {
-    scripts = ["install_deps.sh", "systemd.sh","ops_agent.sh"]
+    scripts = ["install_deps.sh", "systemd.sh", "ops_agent.sh"]
   }
 }
