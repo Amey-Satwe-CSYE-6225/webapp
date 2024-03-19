@@ -8,7 +8,6 @@ const User = require("./models/userModel.js");
 const winston = require("winston");
 const format = winston.format;
 const logger = winston.createLogger({
-  level: "info", // You can set the desired logging level
   format: format.combine(format.timestamp(), format.json()),
   transports: [
     process.env.ENVIRONMENT === "PRODUCTION"
