@@ -8,6 +8,7 @@ const User = require("./models/userModel.js");
 const winston = require("winston");
 const format = winston.format;
 const logger = winston.createLogger({
+  level: "debug",
   format: format.combine(format.timestamp(), format.json()),
   transports: [
     process.env.ENVIRONMENT === "PRODUCTION"
@@ -214,6 +215,9 @@ app.get("/v1/user/self", async (req, res, next) => {
 
     // return res.status(200).send();
   }
+  logger.debug("request is not authorized");
+  logger.error("Unauthorized call to GET");
+  return res.status(401).send();
 });
 
 app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
@@ -227,6 +231,7 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
     },
   });
   if (!currentUser) {
+    logger.debug("User not found. Check for username and password");
     logger.error("User not found");
     return res.status(400).send();
   }
@@ -253,6 +258,7 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
     return res.status(204).send();
   } catch (err) {
     // console.log(err);
+    logger.debug("User update is failing. Check request body data");
     logger.error(`User update failed with the error:${err}`);
     return res.status(400).send();
   }
@@ -265,6 +271,7 @@ sequelize
     // console.log("Database synced successfully");
   })
   .catch((error) => {
+    logger.debug("DB connection and sync has failed");
     logger.error(`Error syncing database:${error}`);
   });
 
