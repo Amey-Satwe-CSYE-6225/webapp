@@ -35,18 +35,19 @@ const validateSchema = (req, res, next) => {
     req.method === "POST"
       ? ["username", "first_name", "last_name", "password"]
       : ["first_name", "last_name", "password"];
-  console.log(allowedFields);
   const requestFields = Object.keys(req.body);
   const extraFields = requestFields.filter(
     (field) => !allowedFields.includes(field)
   );
 
   if (extraFields.length > 0) {
+    logger.warn(`Please check fields in the request,method: ${req.method}`);
     logger.error("Invalid fields in put request");
     return res.status(400).json({ errors: "Invalid fields in put request" });
   }
 
   if (!errors.isEmpty()) {
+    logger.warn(`Please check fields in the request, method: ${req.method}`);
     logger.error("Please check fields for validation errors");
     return res
       .status(400)
@@ -73,7 +74,10 @@ app.use("/healthz", (req, res, next) => {
     Object.keys(req.body).length > 0 ||
     Object.keys(req.query).length > 0
   ) {
-    logger.error("Check request with docs");
+    logger.warn(`Request has body or query params. Please check documentation`);
+    logger.error(
+      "Request has body or query params. Please check documentation"
+    );
     return res.status(400).send();
   } else {
     next();
@@ -84,6 +88,7 @@ app.use("/healthz", (req, res, next) => {
   // console.log("method MW");
   logger.info("methods MW");
   if (req.method != "GET") {
+    logger.warn("Please check methods to be used in swagger docs");
     logger.error("Wrong method used on /healthz");
     return res.status(405).send();
   } else {
@@ -154,7 +159,7 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
       attributes: { exclude: ["password"] },
     });
     // console.log("helloooooo");
-    logger.info("User created successfully");
+    logger.info(`User created successfully,with username:${userName}`);
     return res.status(201).json(responseUser);
     // return res.status(204).send();
   } catch (e) {
@@ -204,13 +209,11 @@ app.get("/v1/user/self", async (req, res, next) => {
       },
       attributes: { exclude: ["password"] },
     });
-    logger.info("Found user");
+    logger.info(`User found with username:${username}`);
     res.json(responseUser).status(200).send();
 
     // return res.status(200).send();
   }
-  logger.error("Unauthorized call to GET");
-  return res.status(401).send();
 });
 
 app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
