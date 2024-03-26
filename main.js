@@ -5,6 +5,7 @@ const { body, validationResult } = require("express-validator");
 
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
+const Tokens = require("./models/tokenModel.js");
 const winston = require("winston");
 const format = winston.format;
 const logger = winston.createLogger({
@@ -16,6 +17,8 @@ const logger = winston.createLogger({
       : new winston.transports.Console(),
   ],
 });
+
+const publishMessage = require("./pubsub.js");
 
 const postschema = [
   body("username").isEmail().isLength({ min: 1 }),
@@ -125,14 +128,14 @@ const checkDBMiddleWare = async (req, res, next) => {
 
 app.use(checkDBMiddleWare);
 
-app.use((req, res, next) => {
-  if (Object.keys(req.query).length > 0) {
-    logger.error(`Query params used in request. Please change request URL`);
-    return res.status(400).send();
-  } else {
-    next();
-  }
-});
+// app.use((req, res, next) => {
+//   if (Object.keys(req.query).length > 0) {
+//     logger.error(`Query params used in request. Please change request URL`);
+//     return res.status(400).send();
+//   } else {
+//     next();
+//   }
+// });
 
 app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
   // console.log("Posting to user");
@@ -161,6 +164,15 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
     });
     // console.log("helloooooo");
     logger.info(`User created successfully,with username:${userName}`);
+    const Token = await Tokens.create({
+      username: userName,
+    });
+    publishMessage("projects/csye-6225-demo-413900/topics/verify_email", {
+      username: `${userName}`,
+      token: `${Token.token}`,
+    }).catch((err) => {
+      console.error(err);
+    });
     return res.status(201).json(responseUser);
     // return res.status(204).send();
   } catch (e) {
@@ -261,6 +273,36 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
     logger.debug("User update is failing. Check request body data");
     logger.error(`User update failed with the error:${err}`);
     return res.status(400).send();
+  }
+});
+
+app.get("/verify_user", async (req, res) => {
+  const userNametoVerify = req.query.username;
+  const tokensToVerify = req.query.token;
+  try {
+    logger.info("Trying to find tokens");
+    let tokenFromDB = Tokens.findOne({
+      where: {
+        username: userNametoVerify,
+      },
+    });
+    if (tokenFromDB.token === tokensToVerify) {
+      logger.info("tokens found comparing now");
+      let user = await User.findOne({
+        where: {
+          username: username,
+        },
+      });
+      await user.set({
+        isVerified: true,
+      });
+      await user.save();
+      logger.info("User is verified now");
+      res.status(200).send();
+    }
+  } catch (e) {
+    console.error(e);
+    res.status(401).send();
   }
 });
 
