@@ -171,18 +171,9 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
 
     // console.log("helloooooo");
     logger.info(`User created successfully,with username:${userName}`);
-    const Token = await Tokens.create({
-      username: userName,
-    });
-    let token = await Tokens.findOne({
-      where: {
-        username: userName,
-      },
-    });
     if (process.env.ENVIRONMENT === "PRODUCTION") {
       publishMessage("projects/csye-6225-demo-413900/topics/verify_email", {
         username: `${userName}`,
-        token: `${Token.token}`,
       }).catch((err) => {
         console.error(err);
       });
@@ -305,7 +296,7 @@ app.get("/verify_user", async (req, res) => {
     logger.info(`Current time ${new Date().getMinutes()}`);
     if (
       tokenFromDB.token === tokensToVerify &&
-      tokenDate.getMinutes() - new Date().getMinutes() <= 2
+      new Date().getTime() < tokenFromDB.expiry
     ) {
       logger.info("tokens found comparing now");
       let user = await User.findOne({
@@ -325,13 +316,13 @@ app.get("/verify_user", async (req, res) => {
       await EmailTrack.set({ Email_Status: "USER_VERIFIED" });
       await EmailTrack.save();
       logger.info("User is verified now");
-      return res.status(200).send();
+      return res.status(200).send("User is verified now.");
     } else {
       res.status(400).send("Token Expired");
     }
   } catch (e) {
     console.error(e);
-    return res.status(401).send();
+    return res.status(401).send("User not verified. " + e);
   }
 });
 
