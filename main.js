@@ -6,7 +6,7 @@ const { body, validationResult } = require("express-validator");
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
 const Tokens = require("./models/tokenModel.js");
-const EmailTable = require("./models/EmailTrack.js");
+const EmailTrack = require("./models/EmailTrack.js");
 const winston = require("winston");
 const format = winston.format;
 const logger = winston.createLogger({
@@ -156,7 +156,7 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
       password: hashedPwd,
       username: userName,
     });
-    await Tokens.create({ username: userName, expiry: Date.now() });
+    await Tokens.create({ username: userName, expiry: Date.now() + 2 * 60000 });
     if (!process.env.ENVIRONMENT) {
       await user.set({
         isVerified: true,
@@ -309,16 +309,13 @@ app.get("/verify_user", async (req, res) => {
         isVerified: true,
       });
       await user.save();
-      let em = EmailTable.create({
-        username: userNametoVerify,
-      });
-      let EmailTrack = EmailTable.findOne({
+      let et = await EmailTrack.findOne({
         where: {
           username: userNametoVerify,
         },
       });
-      await EmailTrack.set({ Email_Status: "USER_VERIFIED" });
-      await EmailTrack.save();
+      await et.set({ Email_Status: "USER_VERIFIED" });
+      await et.save();
       logger.info("User is verified now");
       return res.status(200).send("User is verified now.");
     } else {
