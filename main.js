@@ -6,6 +6,7 @@ const { body, validationResult } = require("express-validator");
 const sequelize = require("./models/sequelize.js");
 const User = require("./models/userModel.js");
 const Tokens = require("./models/tokenModel.js");
+const EmailTable = require("./models/EmailTrack.js");
 const winston = require("winston");
 const format = winston.format;
 const logger = winston.createLogger({
@@ -26,7 +27,6 @@ const postschema = [
   body("last_name").isString().isLength({ min: 1 }),
   body("password").isAlphanumeric().isLength({ min: 1 }),
 ];
-if (!process.env.ENVIRONMENT) postschema[body("isVerified").isBoolean()];
 const putschema = [
   body("first_name").isString().isLength({ min: 1 }),
   body("last_name").isString().isLength({ min: 1 }),
@@ -156,12 +156,19 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
       password: hashedPwd,
       username: userName,
     });
+    if (!process.env.ENVIRONMENT) {
+      await user.set({
+        isVerified: true,
+      });
+      await user.save();
+    }
     const responseUser = await User.findOne({
       where: {
         username: userName,
       },
       attributes: { exclude: ["password"] },
     });
+
     // console.log("helloooooo");
     logger.info(`User created successfully,with username:${userName}`);
     const Token = await Tokens.create({

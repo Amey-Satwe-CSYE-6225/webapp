@@ -6,7 +6,6 @@ const payload = {
   last_name: "satwe",
   password: "amey",
   username: "amey.satwe@test.com",
-  isVerified: true,
 };
 
 const comparisonAfterPost = {
