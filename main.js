@@ -166,6 +166,7 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
     logger.info(`User created successfully,with username:${userName}`);
     const Token = await Tokens.create({
       username: userName,
+      expiry: new Date(Date.now() + 2 * 60000),
     });
     publishMessage("projects/csye-6225-demo-413900/topics/verify_email", {
       username: `${userName}`,
@@ -214,7 +215,7 @@ app.get("/v1/user/self", async (req, res, next) => {
     return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
-  if (currentUser && isValidUser) {
+  if (currentUser && isValidUser && currentUser.isVerified) {
     //  console.log("Password Valid, Let request pass");
     const responseUser = await User.findOne({
       where: {
@@ -248,7 +249,7 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
     return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
-  if (currentUser && !isValidUser) {
+  if (currentUser && !isValidUser && !currentUser.isVerified) {
     logger.error("User authorization failed");
     return res.status(401).send();
   }
@@ -281,16 +282,22 @@ app.get("/verify_user", async (req, res) => {
   const tokensToVerify = req.query.token;
   try {
     logger.info("Trying to find tokens");
-    let tokenFromDB = Tokens.findOne({
+    let tokenFromDB = await Tokens.findOne({
       where: {
         username: userNametoVerify,
       },
     });
-    if (tokenFromDB.token === tokensToVerify) {
+    const tokenDate = new Date(tokenFromDB.expiry);
+    logger.info("token time", tokenDate.getMinutes());
+    logger.info("Current time", new Date().getMinutes());
+    if (
+      tokenFromDB.token === tokensToVerify &&
+      new Date().getMinutes() - tokenDate.getMinutes() <= 2
+    ) {
       logger.info("tokens found comparing now");
       let user = await User.findOne({
         where: {
-          username: username,
+          username: userNametoVerify,
         },
       });
       await user.set({
@@ -298,11 +305,13 @@ app.get("/verify_user", async (req, res) => {
       });
       await user.save();
       logger.info("User is verified now");
-      res.status(200).send();
+      return res.status(200).send();
+    } else {
+      res.status(400).send("Token Expired");
     }
   } catch (e) {
     console.error(e);
-    res.status(401).send();
+    return res.status(401).send();
   }
 });
 
