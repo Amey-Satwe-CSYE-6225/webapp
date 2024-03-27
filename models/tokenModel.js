@@ -23,7 +23,7 @@ const Tokens = sequelize.define(
     },
   },
   {
-    timestamps: false,
+    timestamps: true,
   }
 );
 

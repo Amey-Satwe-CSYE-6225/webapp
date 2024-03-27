@@ -156,19 +156,20 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
       password: hashedPwd,
       username: userName,
     });
+    await Tokens.create({ username: userName, expiry: Date.now() });
     if (!process.env.ENVIRONMENT) {
       await user.set({
         isVerified: true,
       });
       await user.save();
     }
+
     const responseUser = await User.findOne({
       where: {
         username: userName,
       },
       attributes: { exclude: ["password"] },
     });
-
     // console.log("helloooooo");
     logger.info(`User created successfully,with username:${userName}`);
     if (process.env.ENVIRONMENT === "PRODUCTION") {
@@ -308,6 +309,9 @@ app.get("/verify_user", async (req, res) => {
         isVerified: true,
       });
       await user.save();
+      let em = EmailTable.create({
+        username: userNametoVerify,
+      });
       let EmailTrack = EmailTable.findOne({
         where: {
           username: userNametoVerify,
