@@ -26,7 +26,7 @@ const postschema = [
   body("last_name").isString().isLength({ min: 1 }),
   body("password").isAlphanumeric().isLength({ min: 1 }),
 ];
-
+if (!process.env.ENVIRONMENT) postschema[body("isVerified").isBoolean()];
 const putschema = [
   body("first_name").isString().isLength({ min: 1 }),
   body("last_name").isString().isLength({ min: 1 }),
