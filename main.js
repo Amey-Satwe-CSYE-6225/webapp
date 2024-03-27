@@ -168,12 +168,14 @@ app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
       username: userName,
       expiry: new Date(Date.now() + 2 * 60000),
     });
-    publishMessage("projects/csye-6225-demo-413900/topics/verify_email", {
-      username: `${userName}`,
-      token: `${Token.token}`,
-    }).catch((err) => {
-      console.error(err);
-    });
+    if (process.env.ENVIRONMENT === "PRODUCTION") {
+      publishMessage("projects/csye-6225-demo-413900/topics/verify_email", {
+        username: `${userName}`,
+        token: `${Token.token}`,
+      }).catch((err) => {
+        console.error(err);
+      });
+    }
     return res.status(201).json(responseUser);
     // return res.status(204).send();
   } catch (e) {
