@@ -220,7 +220,10 @@ app.get("/v1/user/self", async (req, res, next) => {
     return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
-  if (currentUser && isValidUser && currentUser.isVerified) {
+  if (currentUser && !currentUser.isVerified) {
+    return res.status(403).send();
+  }
+  if (currentUser && isValidUser) {
     //  console.log("Password Valid, Let request pass");
     const responseUser = await User.findOne({
       where: {
