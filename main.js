@@ -254,9 +254,13 @@ app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
     return res.status(400).send();
   }
   const isValidUser = await bcrypt.compare(password, currentUser.password);
-  if (currentUser && !isValidUser && !currentUser.isVerified) {
+  if (currentUser && !isValidUser) {
     logger.error("User authorization failed");
     return res.status(401).send();
+  }
+  if (currentUser && !currentUser.isVerified) {
+    logger.error("User is not verified");
+    return res.status(403).send();
   }
   let body = req.body;
   let firstName = body.first_name;
