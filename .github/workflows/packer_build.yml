@@ -61,11 +61,14 @@ jobs:
       - name: Create image in gcp
         id: image_create
         run: |
-          export IMAGE_ID=$(packer build . | grep project | cut -d " " -f 12)
+          packer build . | tee packer_build.txt
+          IMAGE_ID= echo $( cat packer_build.txt | grep project | cut -d " " -f 12)
+          echo $IMAGE_ID > packer_image_name.txt
 
       - name: Create instance template in gcp
         id: instance_create
         run: |
+          IMAGE_NAME = cat packer_image_name.txt 
           gcloud compute instance-templates create webapp-from-git-temp \
           --instance-template-region="us-east1" \
           --tags="webapp" \
@@ -76,5 +79,5 @@ jobs:
           --scopes=https://www.googleapis.com/auth/cloud-platform --tags=load-balanced-backend,csye-6225 \
           --maintenance-policy="MIGRATE" \
           --image-project="csye-6225-demo-413900" \
-          --image=$IMAGE_ID \
+          --image=$IMAGE_NAME \
           --boot-disk-type="pd-standard"
