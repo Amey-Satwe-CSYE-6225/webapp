@@ -2,7 +2,7 @@ IMAGE_NAME=$(cat packer_image_name.txt)
 echo $IMAGE_NAME
 gcloud secrets versions access 1 --secret=webapp_secret --out-file=secret.json --format='value(payload.data)'
 
-METADATA_STARTUP_SCRIPT=$(echo "secret.json" | jq -r '.metadata_startup_script')
+METADATA_STARTUP_SCRIPT=$(cat "secret.json" | jq -r '.metadata_startup_script')
 
 
 ts=$(date +%Y%m%d%H%M)
