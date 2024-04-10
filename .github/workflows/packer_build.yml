@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 env:
   PRODUCT_VERSION: "latest"
 
@@ -57,4 +60,21 @@ jobs:
 
       - name: Create image in gcp
         id: image_create
-        run: packer build .
+        run: |
+          IMAGE_ID=$(packer build . | grep project | cut -d " " -f 12)
+
+      - name: Create instance template in gcp
+        id: instance_create
+        run: |
+          gcloud compute instance-templates create webapp-from-git-temp \
+          --instance-template-region="us-east1" \
+          --tags="webapp" \
+          --machine-type="n2-standard-2" \
+          --region="us-east1" \
+          --network-interface=network="cloud-demo-vpc",subnet="webapp" \
+          --service-account=csye-demo-service-account@csye-6225-demo-413900.iam.gserviceaccount.com \
+          --scopes=https://www.googleapis.com/auth/cloud-platform --tags=load-balanced-backend,csye-6225 \
+          --maintenance-policy="MIGRATE" \
+          --image-project="csye-6225-demo-413900" \
+          --image=$IMAGE_ID \
+          --boot-disk-type="pd-standard"
