@@ -68,7 +68,7 @@ jobs:
       - name: Create instance template in gcp
         id: instance_create
         run: |
-          IMAGE_NAME = cat packer_image_name.txt 
+          IMAGE_NAME = echo $(cat packer_image_name.txt)
           gcloud compute instance-templates create webapp-from-git-temp \
           --instance-template-region="us-east1" \
           --tags="webapp" \
