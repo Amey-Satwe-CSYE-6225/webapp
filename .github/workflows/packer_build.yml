@@ -61,7 +61,7 @@ jobs:
       - name: Create image in gcp
         id: image_create
         run: |
-          IMAGE_ID=$(packer build . | grep project | cut -d " " -f 12)
+          export IMAGE_ID=$(packer build . | grep project | cut -d " " -f 12)
 
       - name: Create instance template in gcp
         id: instance_create
