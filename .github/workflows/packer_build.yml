@@ -80,4 +80,5 @@ jobs:
           --maintenance-policy="MIGRATE" \
           --image-project="csye-6225-demo-413900" \
           --image=$IMAGE_NAME \
-          --boot-disk-type="pd-standard"
+          --boot-disk-type="pd-standard" \ 
+          --boot-disk-kms-key="projects/csye-6225-demo-413900/locations/us-east1/keyRings/keyringexamplemLzA/cryptoKeys/cryptokeyexamplemLzA"
