@@ -62,13 +62,13 @@ jobs:
         id: image_create
         run: |
           packer build . | tee packer_build.txt
-          IMAGE_ID= echo $( cat packer_build.txt | grep project | cut -d " " -f 12)
-          echo $IMAGE_ID > packer_image_name.txt
+          echo $( cat packer_build.txt | grep project | cut -d " " -f 12) > packer_image_name.txt
 
       - name: Create instance template in gcp
         id: instance_create
         run: |
           IMAGE_NAME=$(cat packer_image_name.txt)
+          echo $IMAGE_NAME
           gcloud compute instance-templates create webapp-from-git-temp \
           --instance-template-region="us-east1" \
           --tags="webapp" \
