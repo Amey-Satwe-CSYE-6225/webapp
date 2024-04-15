@@ -137,7 +137,7 @@ app.use(checkDBMiddleWare);
 //   }
 // });
 
-app.post("/v1/user", postschema, validateSchema, async (req, res, next) => {
+app.post("/v8/user", postschema, validateSchema, async (req, res, next) => {
   // console.log("Posting to user");
   // Create a new user
   logger.info("Creating new user on POST");
@@ -198,9 +198,9 @@ const authMiddleWare = (req, res, next) => {
   }
 };
 
-app.use("/v1/user/self", authMiddleWare);
+app.use("/v8/user/self", authMiddleWare);
 
-app.get("/v1/user/self", async (req, res, next) => {
+app.get("/v8/user/self", async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (Object.keys(req.body).length > 0) {
@@ -241,7 +241,7 @@ app.get("/v1/user/self", async (req, res, next) => {
   return res.status(401).send();
 });
 
-app.put("/v1/user/self", putschema, validateSchema, async (req, res, next) => {
+app.put("/v8/user/self", putschema, validateSchema, async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const decodedString = atob(authHeader.split(" ")[1]).split(":");
   const username = decodedString[0];
